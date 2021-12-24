@@ -13,29 +13,31 @@ ring_buff_t* ring_buff_init(size_t size_needed)
     // allocate memory for new ring_buffer struct
     ring_buff_t* ring_buff = malloc(sizeof(ring_buff_t) + (size_needed * sizeof(BUF_TYPE)));
     
-    // initing default values
-    ring_buff->size = size_needed;
-    ring_buff->head = 0;
-    ring_buff->tail = 0;
-    ring_buff->num_of_values = 0;
-    
-    // allocate memory for the buffer exact
-    ring_buff->storage = malloc(size_needed * sizeof(BUF_TYPE));
+    if (ring_buff != NULL)
+    {
+        // initing default values
+        ring_buff->size = size_needed;
+        ring_buff->head = 0;
+        ring_buff->tail = 0;
+        ring_buff->num_of_values = 0;
+        // allocate memory for the buffer exact
+        ring_buff->storage = malloc(size_needed * sizeof(BUF_TYPE));     
+    }
     
     return ring_buff;
 }
 
-void ring_buff_delete (ring_buff_t* ring_buff)
+eRingBuffErrCode ring_buff_delete (ring_buff_t* ring_buff)
 {
     // if buffer was not allocated - do nothing
     if (ring_buff == NULL)
     {
-        return;
+        return RB_ERR_NULL_INSTANCE;
     }
     
     // free allocated memory
     free(ring_buff);
-    return;
+    return RB_OK;
 }
 
 void ring_buff_push (BUF_TYPE value, ring_buff_t* ring_buffer)
@@ -91,12 +93,7 @@ eRingBuffErrCode ring_buff_get (BUF_TYPE* ret_val, ring_buff_t* ring_buffer, eRi
     return RB_OK;    
 }
 
-void local_print(uint8_t c)
-{
-        printf("%d\n", c);
-}
-
-eRingBuffErrCode ring_buff_for_each(ring_buff_t* ring_buffer)
+eRingBuffErrCode ring_buff_map(ring_buff_t* ring_buffer, void (*map_func)(BUF_TYPE* element))
 {
     if (ring_buffer->num_of_values == 0)
     {
@@ -105,8 +102,7 @@ eRingBuffErrCode ring_buff_for_each(ring_buff_t* ring_buffer)
     uint32_t idx = ring_buffer->head;
     for (uint8_t counter = 0; counter < ring_buffer->num_of_values; counter ++)
     {
-        /*some function here*/
-        local_print(ring_buffer->storage[idx++]);
+        map_func(&ring_buffer->storage[idx++]);
         if (idx == ring_buffer->size)
         {
             idx = 0;
@@ -115,6 +111,33 @@ eRingBuffErrCode ring_buff_for_each(ring_buff_t* ring_buffer)
     return RB_OK;
 }
 
+eRingBuffErrCode ring_buff_get_by_id(BUF_TYPE* ret_val, ring_buff_t* ring_buffer, uint32_t id)
+{
+    if (ring_buffer == NULL)
+    {
+        return RB_ERR_NULL_INSTANCE;
+    }
+    
+    if (id >= ring_buffer->num_of_values)
+    {
+        return RB_ERR_INVALID_ELEMENT_ID;
+    }
+    
+    if (ring_buffer->head < ring_buffer->tail)
+    {
+        *ret_val = ring_buffer->storage[ring_buffer->head + id];
+    }
+    uint32_t elements_till_end = ring_buffer->size - ring_buffer->head;
+    if ((int32_t)elements_till_end - (int32_t)id > 0)
+    {
+        *ret_val = ring_buffer->storage[ring_buffer->head + id];
+    }
+    else
+    {
+        *ret_val = ring_buffer->storage[id - elements_till_end];
+    }
+    return RB_OK;
+}
 /* *********** Static functions implementations **************/
 
 void inc_buff_head(ring_buff_t* ring_buffer)
