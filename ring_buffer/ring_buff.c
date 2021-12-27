@@ -27,16 +27,16 @@ ring_buff_t* ring_buff_init(size_t size_needed)
     return ring_buff;
 }
 
-eRingBuffErrCode ring_buff_delete (ring_buff_t* ring_buff)
+eRingBuffErrCode ring_buff_delete (ring_buff_t* ring_buffer)
 {
     // if buffer was not allocated - do nothing
-    if (ring_buff == NULL)
+    if (ring_buffer == NULL)
     {
         return RB_ERR_NULL_INSTANCE;
     }
     
     // free allocated memory
-    free(ring_buff);
+    free(ring_buffer);
     return RB_OK;
 }
 
@@ -138,6 +138,28 @@ eRingBuffErrCode ring_buff_get_by_id(BUF_TYPE* ret_val, ring_buff_t* ring_buffer
     }
     return RB_OK;
 }
+
+eRingBuffErrCode ring_buff_reduce(BUF_TYPE (*ret_val), ring_buff_t* ring_buffer, BUF_TYPE (*reduce_func)(BUF_TYPE prev, BUF_TYPE next))
+{
+    if (ring_buffer == NULL)
+    {
+        return RB_ERR_NULL_INSTANCE;
+    }
+    
+    BUF_TYPE accumulator = *ret_val;
+    BUF_TYPE tmp;
+    
+    for (uint32_t idx = 0; idx < ring_buffer->num_of_values; idx++)
+    {
+        ring_buff_get_by_id(&tmp,ring_buffer, idx);
+        accumulator = reduce_func(accumulator, tmp);
+    }
+    
+    *ret_val = accumulator;
+    
+    return RB_OK;
+}
+
 /* *********** Static functions implementations **************/
 
 void inc_buff_head(ring_buff_t* ring_buffer)

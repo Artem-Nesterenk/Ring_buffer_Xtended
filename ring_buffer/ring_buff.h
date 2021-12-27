@@ -30,17 +30,17 @@ typedef enum
     RB_GET_POP,
 } eRingBuffGetType;
 
-
 ring_buff_t* ring_buff_init(size_t size_needed);
 
-eRingBuffErrCode ring_buff_delete (ring_buff_t* ring_buff);
+eRingBuffErrCode ring_buff_delete (ring_buff_t* ring_buffer);
 
 void ring_buff_push (BUF_TYPE value, ring_buff_t* ring_buffer);
 
 eRingBuffErrCode ring_buff_get (BUF_TYPE* ret_val, ring_buff_t* ring_buffer, eRingBuffGetType get_type);
 
-eRingBuffErrCode ring_buff_map(ring_buff_t* ring_buffer, void (*f)(BUF_TYPE* element));
+eRingBuffErrCode ring_buff_map(ring_buff_t* ring_buffer, void (*fmap_func)(BUF_TYPE* element));
 
 eRingBuffErrCode ring_buff_get_by_id(BUF_TYPE* ret_val, ring_buff_t* ring_buffer, uint32_t id);
 
+eRingBuffErrCode ring_buff_reduce(BUF_TYPE (*ret_val), ring_buff_t* ring_buffer, BUF_TYPE (*reduce_func)(BUF_TYPE prev, BUF_TYPE next));
 #endif
