@@ -146,6 +146,10 @@ eRingBuffErrCode ring_buff_reduce(BUF_TYPE (*ret_val), ring_buff_t* ring_buffer,
         return RB_ERR_NULL_INSTANCE;
     }
     
+    if (ring_buffer->num_of_values == 0)
+    {
+        return RB_ERR_EMPTY;
+    }
     BUF_TYPE accumulator = *ret_val;
     BUF_TYPE tmp;
     
