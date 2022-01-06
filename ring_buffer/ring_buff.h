@@ -1,6 +1,10 @@
 #ifndef RING_BUFF_H
 #define RING_BUFF_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stddef.h>
 #include "ring_buff_conf.h"
@@ -79,10 +83,10 @@ eRingBuffErrCode ring_buff_get (BUF_TYPE* ret_val, ring_buff_t* ring_buffer, eRi
 eRingBuffErrCode ring_buff_get_by_id(BUF_TYPE* ret_val, ring_buff_t* ring_buffer, uint32_t id);
 
 /**
- * @brief apply some function to all elements of the ring buffer
- * @param ring_buffer pointer to the buffer
- * @param map_func user-defined function which will be applied the the elements
- * @return Error code @ref eRingBuffErrCode
+ *@brief apply some function to all elements of the ring buffer
+ *@param ring_buffer pointer to the buffer
+ *@param map_func user-defined function which will be applied the the elements
+ *@return Error code @ref eRingBuffErrCode
  */
 eRingBuffErrCode ring_buff_map(ring_buff_t* ring_buffer, void (*map_func)(BUF_TYPE* element));
 
@@ -97,4 +101,9 @@ eRingBuffErrCode ring_buff_map(ring_buff_t* ring_buffer, void (*map_func)(BUF_TY
  * @return Error code @ref eRingBuffErrCode
  */
 eRingBuffErrCode ring_buff_reduce(BUF_TYPE (*ret_val), ring_buff_t* ring_buffer, BUF_TYPE (*reduce_func)(BUF_TYPE prev, BUF_TYPE next));
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
